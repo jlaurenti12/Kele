@@ -15,6 +15,14 @@ class Kele
     @user = JSON.parse(response.body)
   end
 
+  def get_mentor_availability(mentor_id)
+    response = self.class.get("https://www.bloc.io/api/v1/mentors/#{mentor_id}/student_availability", headers:{ "authorization" => @auth_token} )
+    @mentor_availability = JSON.parse(response.body)
+    @mentor_availability.find_all{|timeslot| timeslot["booked"] == nil}.map{|timeslot| timeslot}
+  end
+
+
+
   private
 
   def api_url(endpoint)
