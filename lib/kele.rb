@@ -23,6 +23,25 @@ class Kele
     @mentor_availability.find_all{|timeslot| timeslot["booked"] == nil}.map{|timeslot| timeslot}
   end
 
+  def get_messages(page = "all")
+    if page == 'all'
+      response = self.class.get(api_url("message_threads"), headers: { "authorization" => @auth_token})
+    else
+      response = self.class.get(api_url("message_threads?page=#{page}"), headers: { "authorization" => @auth_token })
+    end
+    @messages = JSON.parse(response.body)
+  end
+
+  def create_message(sender_email, recipient_id, subject, message)
+    response = self.class.post(api_url("messages"), headers: { "authorization" => @auth_token}, body: { "sender": sender_email, "recipient_id": recipient_id, "subject": subject, "stripped-text": message  })
+    if response.success?
+      puts "message sent!"
+    else
+      puts "message failed to send"
+    end
+  end
+
+
   private
 
   def api_url(endpoint)
