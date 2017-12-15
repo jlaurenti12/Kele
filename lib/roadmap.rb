@@ -15,19 +15,33 @@ module Roadmap
     @checkpoint = JSON.parse(response.body)
   end
 
-  def create_submission(checkpoint_id, assignment_branch, assignment_commit_link, comment, enrollment_id)
+  def create_submission(checkpoint_id, assignment_branch, assignment_commit_link, comment, enrollment_id = @user_id)
   # my enrollment_id is 34208
   # this checkpoint_id is 2162
   response = self.class.post(api_url("checkpoint_submissions"),
-             body: { "checkpoint_id": checkpoint_id, "assignment_branch": assignment_branch, "assignment_commit_link": assignment_commit_link, "comment": comment, "enrollment_id": enrollment_id },
+             body: {
+               "checkpoint_id": checkpoint_id,
+               "assignment_branch": assignment_branch,
+               "assignment_commit_link": assignment_commit_link,
+               "comment": comment,
+               "enrollment_id": enrollment_id
+             },
              headers: { "authorization" => @auth_token })
-    if response.success?
-      puts "checkpoint submitted"
-    else
-      puts "checkpoint failed to submit"
-    end
+    @submission_id = response.body["id"]
+    response
   end
 
+  def update_submission(checkpoint_id, assignment_branch, assignment_commit_link, comment, enrollment_id = @user_id, id = @submission_id)
+  response = self.class.put(api_url("checkpoint_submissions/:#{id}"),
+            body: {
+               "checkpoint_id": checkpoint_id,
+               "assignment_branch": assignment_branch,
+               "assignment_commit_link": assignment_commit_link,
+               "comment": comment,
+               "enrollment_id": enrollment_id
+            },
+            headers: { "authorization" => @auth_token })
+  end
 
   private
 
